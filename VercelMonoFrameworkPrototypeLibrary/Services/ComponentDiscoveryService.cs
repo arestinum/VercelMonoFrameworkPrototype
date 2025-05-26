@@ -18,22 +18,21 @@ public class ComponentScriptClientSideFile
 public class ComponentContentFile
 {
     public DateTime LastWritten { get; set; }
-    public string Content { get; set; } = string.Empty;
+    public HtmlDocument? Content { get; set; }
 }
 
 public class VercelMonoFrameworkComponent
 {
     public string FolderPath { get; set; } = string.Empty;
-    public ComponentScriptServerSideFile? serverScript;
-    public ComponentScriptClientSideFile? clientScript;
-    public ComponentContentFile? content;
+    public ComponentScriptServerSideFile? ServerScript { get; set; }
+    public ComponentScriptClientSideFile? ClientScript { get; set; }
+    public ComponentContentFile? Content { get; set; }
 
     public VercelMonoFrameworkComponent(string folderPath)
     {
         FolderPath = folderPath;
-
-        var doc = new HtmlDocument();
-        doc.Load(folderPath + "+page.cshtml");
+        if (Content != null && Content.Content != null)
+            Content.Content.Load(folderPath + "+page.cshtml");
     }
 }
 

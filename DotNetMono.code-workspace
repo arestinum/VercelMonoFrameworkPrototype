@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "./VercelMonoFrameworkPrototype"
+		},
+		{
+			"path": "./VercelMonoFrameworkPrototypeLibrary"
+		}
+	],
+	"settings": {}
+}

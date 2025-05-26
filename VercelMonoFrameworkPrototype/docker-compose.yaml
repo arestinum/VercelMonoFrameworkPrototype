@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  aspnet-mono:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8070:8080"
+    volumes:
+      - ./:/app
+    restart: unless-stopped  # Temporarily disable auto-restart to see the real error
+    environment:
+      - MONO_IOMAP=all
+      - MONO_LOG_LEVEL=debug
+      - MONO_LOG_MASK=all
+    command: bash -c "ls -la /app && xsp4 --port 8080 --address 0.0.0.0 --root /app --nonstop --verbose"

@@ -8,7 +8,7 @@ public class VercelFrameworkModule : IHttpModule
     {
         context.BeginRequest += (sender, e) =>
         {
-            
+
         };
     }
 

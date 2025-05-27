@@ -7,6 +7,7 @@ namespace VercelMonoFrameworkPrototypeLibrary;
 
 public class VercelFrameworkTemplaterEngine
 {
+    private readonly DateTime _lastAccessed;
     private readonly string _viewSourceTemplate = string.Empty;
     private readonly VercelFrameworkConfigurator _configuration = new();
 
@@ -24,6 +25,7 @@ public class VercelFrameworkTemplaterEngine
         }
 
         bool isFileExisting = !string.IsNullOrEmpty(routePath) && File.Exists(routePath + $"+page.{templateExtension}");
+        _lastAccessed = File.GetLastWriteTime(routePath + $"+page.{templateExtension}");
         bool isServerFileExisting = !string.IsNullOrEmpty(routePath) && File.Exists(routePath + "+server.cs");
         if (isFileExisting)
             _viewSourceTemplate = File.ReadAllText(routePath + $"+page.{templateExtension}");
@@ -39,7 +41,7 @@ public class VercelFrameworkTemplaterEngine
         string result = string.Empty;
 
         if (_configuration.Templater is VercelFrameworkTemplater.RazorEngine)
-            result = Engine.Razor.RunCompile(_viewSourceTemplate, null, new { FirstName = "Patrikas", LastName = "Lyddon" });
+            result = Engine.Razor.RunCompile(_viewSourceTemplate, _lastAccessed.ToString(), null, new { FirstName = "Patrikas", LastName = "Lyddon" });
 
         return result;
     }

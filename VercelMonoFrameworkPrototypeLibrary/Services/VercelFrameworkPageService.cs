@@ -19,7 +19,7 @@ public class PageRegistry
     public List<PageEntry> Entries { get; set; } = [];
 }
 
-public class PageDiscoveryService
+public class VercelFrameworkPageService
 {
 
 }

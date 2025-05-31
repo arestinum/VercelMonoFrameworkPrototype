@@ -43,12 +43,12 @@ public class ComponentRegistry
     public Assembly Assembly { get; set; }
 }
 
-public class ComponentDiscoveryService
+public class VercelFrameworkComponentService
 {
     public Dictionary<string, ComponentRegistry> ComponentRegistry { get; set; }
 
-    public void Discover() 
-{
+    public void Discover()
+    {
 
     }
 }

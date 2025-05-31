@@ -1,4 +1,6 @@
+using System.CodeDom.Compiler;
 using System.Numerics;
+using Microsoft.CSharp;
 using RazorEngine;
 using RazorEngine.Configuration;
 using RazorEngine.Templating;
@@ -12,6 +14,19 @@ public class VercelFrameworkTemplaterEngine
     private readonly DateTime _lastAccessed;
     private readonly string _viewSourceTemplate = string.Empty;
     private readonly VercelFrameworkConfigurator _configuration = new();
+
+    public void GenerateServerSideScript(string filePath)
+    {
+        CSharpCodeProvider provider = new();
+
+        CompilerParameters parameters = new()
+        {
+            GenerateExecutable = false,
+            GenerateInMemory = true,
+        };
+
+        var compilerResult = provider.CompileAssemblyFromFile(parameters, filePath);
+    }
 
     public VercelFrameworkTemplaterEngine(string? routePath)
     {
@@ -29,6 +44,7 @@ public class VercelFrameworkTemplaterEngine
         bool isFileExisting = !string.IsNullOrEmpty(routePath) && File.Exists(routePath + $"+page.{templateExtension}");
         _lastAccessed = File.GetLastWriteTime(routePath + $"+page.{templateExtension}");
         bool isServerFileExisting = !string.IsNullOrEmpty(routePath) && File.Exists(routePath + "+server.cs");
+
         if (isFileExisting)
             _viewSourceTemplate = File.ReadAllText(routePath + $"+page.{templateExtension}");
 

@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Reference Include="VercelMonoFrameworkPrototypeLibrary"/>
+    <Reference Include="bin/*.dll"/>
     <PackageReference Include="HtmlAgilityPack" Version="1.12.1" />
     <PackageReference Include="RazorEngine" Version="3.10.0" />
     <Reference Include="System.Web" />

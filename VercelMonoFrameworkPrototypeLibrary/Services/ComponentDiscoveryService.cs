@@ -38,10 +38,17 @@ public class VercelMonoFrameworkComponent
 
 public class ComponentRegistry
 {
-
+    public DateTime CreatedAt { get; set; }
+    public DateTime LastWritten { get; set; }
+    public Assembly Assembly { get; set; }
 }
 
 public class ComponentDiscoveryService
 {
+    public Dictionary<string, ComponentRegistry> ComponentRegistry { get; set; }
 
+    public void Discover() 
+{
+
+    }
 }

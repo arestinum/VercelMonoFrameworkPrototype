@@ -1,7 +1,9 @@
 using System.Numerics;
 using RazorEngine;
+using RazorEngine.Configuration;
 using RazorEngine.Templating;
 using VercelMonoFrameworkPrototypeLibrary.Enums;
+using VercelMonoFrameworkPrototypeLibrary.RazorEngine;
 
 namespace VercelMonoFrameworkPrototypeLibrary;
 
@@ -41,7 +43,16 @@ public class VercelFrameworkTemplaterEngine
         string result = string.Empty;
 
         if (_configuration.Templater is VercelFrameworkTemplater.RazorEngine)
-            result = Engine.Razor.RunCompile(_viewSourceTemplate, _lastAccessed.ToString(), null, new { FirstName = "Patrikas", LastName = "Lyddon" });
+        {
+            TemplateServiceConfiguration config = new()
+            {
+                BaseTemplateType = typeof(GlobalTemplateBase<>)
+            };
+
+            var service = RazorEngineService.Create(config);
+
+            result = service.RunCompile(_viewSourceTemplate, _lastAccessed.ToString(), null, new { FirstName = "Patrikas", LastName = "Lyddon" });
+        }
 
         return result;
     }

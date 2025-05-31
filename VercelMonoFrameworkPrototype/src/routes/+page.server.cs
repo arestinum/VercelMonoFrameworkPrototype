@@ -1,14 +1,20 @@
-namespace VercelMonoFrameworkPrototype
+using VercelMonoFrameworkPrototypeLibrary;
+
+namespace VercelMonoFrameworkPrototype;
+
+public class IndexPage : IVercelFrameworkPage
 {
-    public class IndexPage
+    public object PreInit()
     {
-        public object Initialise()
+        return new { };
+    }
+
+    public object Init()
+    {
+        return new
         {
-            return new
-            {
-                FirstName = "Patrikas",
-                LastName = "Lyddon"
-            };
-        }
+            FirstName = "Patrikas",
+            LastName = "Lyddon"
+        };
     }
 }

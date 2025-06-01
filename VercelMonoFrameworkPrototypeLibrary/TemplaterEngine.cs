@@ -11,7 +11,7 @@ namespace VercelMonoFrameworkPrototypeLibrary;
 
 public class VercelFrameworkTemplaterEngine
 {
-    private readonly DateTime _lastAccessed;
+    private readonly DateTime _lastWritten;
     private readonly string _viewSourceTemplate = string.Empty;
     private readonly VercelFrameworkConfigurator _configuration = new();
 
@@ -42,7 +42,7 @@ public class VercelFrameworkTemplaterEngine
         }
 
         bool isFileExisting = !string.IsNullOrEmpty(routePath) && File.Exists(routePath + $"+page.{templateExtension}");
-        _lastAccessed = File.GetLastWriteTime(routePath + $"+page.{templateExtension}");
+        _lastWritten = File.GetLastWriteTime(routePath + $"+page.{templateExtension}");
         bool isServerFileExisting = !string.IsNullOrEmpty(routePath) && File.Exists(routePath + "+server.cs");
 
         if (isFileExisting)
@@ -62,12 +62,14 @@ public class VercelFrameworkTemplaterEngine
         {
             TemplateServiceConfiguration config = new()
             {
-                BaseTemplateType = typeof(GlobalTemplateBase<>)
+                BaseTemplateType = typeof(GlobalTemplateBase<>),
+                CachingProvider = new VercelFrameworkCachingProvider(),
+                Debug = true
             };
 
             var service = RazorEngineService.Create(config);
 
-            result = service.RunCompile(_viewSourceTemplate, _lastAccessed.ToString(), null, new { FirstName = "Patrikas", LastName = "Lyddon" });
+            result = service.RunCompile(_viewSourceTemplate, _lastWritten.ToString(), null, new { FirstName = "Patrikas", LastName = "Lyddon" });
         }
 
         return result;

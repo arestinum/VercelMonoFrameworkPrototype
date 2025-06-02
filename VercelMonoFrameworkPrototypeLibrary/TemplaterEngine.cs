@@ -1,5 +1,7 @@
 using System.CodeDom.Compiler;
 using System.Numerics;
+using System.Web;
+using HtmlAgilityPack;
 using Microsoft.CSharp;
 using RazorEngine;
 using RazorEngine.Configuration;
@@ -46,7 +48,34 @@ public class VercelFrameworkTemplaterEngine
         bool isServerFileExisting = !string.IsNullOrEmpty(routePath) && File.Exists(routePath + "+server.cs");
 
         if (isFileExisting)
-            _viewSourceTemplate = File.ReadAllText(routePath + $"+page.{templateExtension}");
+        {
+            HtmlDocument doc = new();
+            doc.Load(routePath + $"+layout.{templateExtension}");
+
+            var node = doc.DocumentNode.SelectSingleNode("//slot");
+
+            if (node != null)
+            {
+                _viewSourceTemplate = File.ReadAllText(routePath + $"+page.{templateExtension}");
+
+                var pageContentNode = HtmlNode.CreateNode("<div></div>");
+                pageContentNode.InnerHtml = _viewSourceTemplate;
+                node.ParentNode.ReplaceChild(pageContentNode, node);
+                _viewSourceTemplate = doc.DocumentNode.WriteTo();
+            }
+
+            if (File.Exists(HttpContext.Current.Server.MapPath("~/src/index.html")))
+            {
+                HtmlDocument document = new();
+                document.Load(HttpContext.Current.Server.MapPath("~/src/index.html"));
+
+                var layoutContentNode = HtmlNode.CreateNode("<div></div>");
+                layoutContentNode.InnerHtml = _viewSourceTemplate;
+                var slotNode = document.DocumentNode.SelectSingleNode("//slot");
+                slotNode.ParentNode.ReplaceChild(layoutContentNode, slotNode);
+                _viewSourceTemplate = document.DocumentNode.WriteTo();
+            }
+        }
 
         if (string.IsNullOrEmpty(_viewSourceTemplate))
         {

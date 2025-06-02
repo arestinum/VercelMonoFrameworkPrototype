@@ -1,11 +1,15 @@
 using System.CodeDom.Compiler;
 using System.Diagnostics;
+using System.Globalization;
 using System.Reflection;
 using System.Web;
 using HtmlAgilityPack;
 using Microsoft.CSharp;
 using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
+using RazorEngine.Configuration;
+using RazorEngine.Templating;
+using VercelMonoFrameworkPrototypeLibrary.RazorEngine;
 
 namespace VercelMonoFrameworkPrototypeLibrary.Services;
 
@@ -97,19 +101,46 @@ public class VercelFrameworkComponentService
             )
         );
 
-        // Path.GetFileNameWithoutExtension
-
-        results.Files.Select(file =>
+        if (results.HasMatches)
         {
-            CSharpCodeProvider provider = new();
-            provider.CompileAssemblyFromFile(file.Path);
-
-            return new ComponentRegistry()
+            CSharpCodeProvider provider = new() { };
+            CompilerParameters parameters = new()
             {
-                CreatedAt = DateTime.Now,
-                LastWritten = File.GetLastWriteTime(file.Path),
+                GenerateExecutable = false,
+                GenerateInMemory = true
             };
-        });
+
+            foreach (var file in results.Files)
+            {
+                var result = provider.CompileAssemblyFromFile(parameters, file.Path);
+                var assembly = result.CompiledAssembly;
+
+                var componentClasses = assembly.ExportedTypes.Where(p => p.Name.EndsWith("Component"));
+
+                if (componentClasses.Count() > 1)
+                    throw new Exception(
+                        $"There are more than one component classes in {file.Path}",
+                        new($"Please use one class per file, identified classes: {string.Join(",", componentClasses.Select(t => t.Name))}")
+                    );
+
+                var componentClass = componentClasses.First();
+                var componentInitMethod = componentClass.GetMethod("Init");
+
+                object componentInstance = assembly.CreateInstance(componentClass.Name);
+                var initReturn = componentClass.InvokeMember("Init", BindingFlags.InvokeMethod, null, componentInstance, []);
+
+                TemplateServiceConfiguration config = new()
+                {
+                    BaseTemplateType = typeof(GlobalTemplateBase<>),
+                    CachingProvider = new VercelFrameworkCachingProvider(),
+                    Debug = true
+                };
+
+                var service = RazorEngineService.Create(config);
+
+                service.AddTemplate(Path.GetFileNameWithoutExtension(file.Path).Replace(".component", ""), $"{Path.GetFileNameWithoutExtension(file.Path)}.cshtml");
+            }
+        }
     }
 
     public bool IsInRegistry(string keyName)

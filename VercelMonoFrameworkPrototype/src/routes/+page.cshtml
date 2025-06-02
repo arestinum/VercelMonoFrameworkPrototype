@@ -1,9 +1,26 @@
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Serialization
+@using System.IO
+@using Microsoft.Extensions.FileSystemGlobbing
+@using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
+
+
+<pre>
+    <code>
+        @JsonConvert.SerializeObject(Router, Formatting.Indented)
+    </code>
+</pre>
+
 @{
-    int test = 12;
+    var matcher = new Matcher();
+    matcher.AddInclude("**/+page.cshtml");
+    matcher.AddInclude("**/+server.cs");
+
+    var results = matcher.Execute(new DirectoryInfoWrapper(new DirectoryInfo(Context.Server.MapPath("~/src/routes"))));
 }
 
-<p>Hello @Model.FirstName @Model.LastName</p>
-
-<p>@test</p>
-
-@VercelFramework.GreetUser("Patrikas")
+<pre>
+    <code>
+        @JsonConvert.SerializeObject(results.Files.Select(file => Path.GetDirectoryName(file.Path).Split("/")), Formatting.Indented)
+    </code>
+</pre>

@@ -13,7 +13,7 @@ public class IndexPage : IVercelFrameworkPage
     {
         return new
         {
-            FirstName = "Patrikas",
+            FirstName = "Test",
             LastName = "Lyddon"
         };
     }

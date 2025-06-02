@@ -9,4 +9,5 @@ public abstract class GlobalTemplateBase<T> : TemplateBase<T>
     public HttpRequest Request => Context.Request;
     public HttpResponse Response => Context.Response;
     public VercelMonoFrameworkApplication VercelFramework => (VercelMonoFrameworkApplication)Context.Application["VercelFramework"];
+    public VercelFrameworkRouter Router => (VercelFrameworkRouter)Context.Application["VercelFrameworkRouter"];
 }

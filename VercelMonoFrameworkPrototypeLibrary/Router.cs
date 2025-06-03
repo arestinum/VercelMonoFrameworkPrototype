@@ -37,7 +37,7 @@ public class VercelFrameworkRouter
         // RootNode = new();
         application.Application["VercelFrameworkRouter"] = this;
 
-        ApplicationAssembly = Assembly.GetCallingAssembly();
+        application.Application["VercelFrameworkAssembly"] = Assembly.GetAssembly(typeof(IVercelFrameworkPage));
     }
 
     public void Discover(string filePath)

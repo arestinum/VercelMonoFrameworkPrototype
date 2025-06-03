@@ -23,6 +23,12 @@
 
 <pre>
     <code>
+        @JsonConvert.SerializeObject(((Assembly)Context.Application["VercelFrameworkAssembly"]).GetTypes(), Formatting.Indented)
+    </code>
+</pre>
+
+<pre>
+    <code>
         @JsonConvert.SerializeObject(results.Files.Select(file => Path.GetDirectoryName(file.Path).Split("/")), Formatting.Indented)
     </code>
 </pre>

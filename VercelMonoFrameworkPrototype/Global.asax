@@ -7,6 +7,5 @@
     void Application_Start(object sender, EventArgs e)
     {
         var vercelApp = new VercelMonoFrameworkApplication((HttpApplication)sender);
-        var router = new VercelFrameworkRouter();
     }
 </script>

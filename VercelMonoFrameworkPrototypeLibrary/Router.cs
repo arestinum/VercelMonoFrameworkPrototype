@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Security;
 using System.Web;
 using System.Web.Configuration;
@@ -29,13 +30,14 @@ public class VercelFrameworkRouteNode
 public class VercelFrameworkRouter
 {
     public VercelFrameworkRouteNode RootNode { get; set; }
+    public Assembly ApplicationAssembly { get; set; }
 
-    public VercelFrameworkRouter()
+    public VercelFrameworkRouter(HttpApplication application)
     {
-        RootNode = new();
-        Discover(HttpContext.Current.Server.MapPath("~/src/routes"));
-        HttpContext.Current.Application["VercelFrameworkRouter"] = this;
-        RootNode.Children.Add(new());
+        // RootNode = new();
+        application.Application["VercelFrameworkRouter"] = this;
+
+        ApplicationAssembly = Assembly.GetCallingAssembly();
     }
 
     public void Discover(string filePath)

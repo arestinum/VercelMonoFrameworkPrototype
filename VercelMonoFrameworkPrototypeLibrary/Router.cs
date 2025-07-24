@@ -1,9 +1,9 @@
 using System.Reflection;
-using System.Security;
+using System.Security.AccessControl;
 using System.Web;
-using System.Web.Configuration;
-using Microsoft.Extensions.FileSystemGlobbing;
-using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
+using System.Web.Routing;
+using System.Web.UI.WebControls;
+using VercelMonoFrameworkPrototypeLibrary.Routing;
 
 namespace VercelMonoFrameworkPrototypeLibrary;
 
@@ -23,52 +23,73 @@ public class VercelFrameworkRouteNode
     public RouteNodeType Type { get; set; } = RouteNodeType.Static;
 
     public VercelFrameworkRouteNode()
-    {
-    }
+    { }
 }
 
 public class VercelFrameworkRouter
 {
-    public VercelFrameworkRouteNode RootNode { get; set; }
+    public HttpApplication Application { get; set; }
+    public RouteNode RootNode { get; set; }
     public Assembly ApplicationAssembly { get; set; }
 
     public VercelFrameworkRouter(HttpApplication application)
     {
-        // RootNode = new();
-        application.Application["VercelFrameworkRouter"] = this;
+        Application = application;
+        string routerRoot = Application.Server.MapPath("~/src/routes");
 
-        application.Application["VercelFrameworkAssembly"] = Assembly.GetAssembly(typeof(IVercelFrameworkPage));
+        Application.Application["Framework::Router"] = this;
+        Application.Application["Framework::Router::Root"] = routerRoot;
+        Application.Application["Framework::Assembly"] = Assembly.GetAssembly(typeof(IVercelFrameworkPage));
+
+        RootNode = new()
+        {
+            Name = "",
+            DirectoryPath = routerRoot,
+            Children = Discover(routerRoot),
+            Metadata = new()
+            {
+                hasDefault = File.Exists(
+                    Path.Combine(routerRoot, "+page.cshtml")
+                ),
+                hasEndpoint = File.Exists(
+                    Path.Combine(routerRoot, "+server.cshtml")
+                ),
+                hasErrorChild = File.Exists(
+                    Path.Combine(routerRoot, "+error.cshtml")
+                ),
+                hasDynamicChild = Directory.GetDirectories(routerRoot).Any(directory => directory.StartsWith("[") && directory.EndsWith("]"))
+            }
+        };
+
+        Application.Application["Framework::Router::Tree"] = RootNode;
     }
 
-    public void Discover(string filePath)
+    public List<RouteNode> Discover(string path)
     {
-        var files = Directory.GetFiles(filePath);
+        List<string> directories = [.. Directory.GetDirectories(path)];
+        if (directories.Count == 0) return [];
 
-        if (File.Exists(filePath + "+page.cshtml") || File.Exists(filePath + "server.cs"))
-        {
-            RootNode.Children.Add(new());
+        List<RouteNode> children = [..directories.Select(directory => {
 
-            foreach (var file in files)
-            {
-                Discover(file);
-            }
-        }
+            return new RouteNode() {
+                Name = directory.Split('/').Last(),
+                DirectoryPath = directory,
+                Children = Discover(directory),
+                Metadata = new() {
+                    hasDefault = File.Exists(
+                        Path.Combine(directory, "+page.cshtml")
+                    ),
+                    hasEndpoint = File.Exists(
+                        Path.Combine(directory, "+server.cs")
+                    ),
+                    hasErrorChild = File.Exists(
+                        Path.Combine(directory, "+error.cs")
+                    ),
+                    hasDynamicChild = Directory.GetDirectories(directory).Any(directory => directory.StartsWith("[") && directory.EndsWith("]"))
+                }
+            };
+        })];
 
-        // Matcher matcher = new();
-        // matcher.AddInclude("+page.cshtml");
-        // matcher.AddInclude("+server.cs");
-
-        // var results = matcher.Execute(
-        // new DirectoryInfoWrapper(
-        //         new DirectoryInfo(
-        //             HttpContext.Current.Server.MapPath("~/src/routes")
-        //         )
-        //     )
-        // );
-
-        // if (results == null) return;
-
-        // var apiRouteFiles = results.Files.Where(file => file.Path.EndsWith("+server.cs"));
-        // var pageRouteFiles = results.Files.Where(file => file.Path.EndsWith("+page.cshtml"));
+        return children;
     }
 }

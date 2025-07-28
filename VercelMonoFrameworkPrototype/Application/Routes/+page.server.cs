@@ -1,8 +1,8 @@
-using VercelMonoFrameworkPrototypeLibrary;
+using VercelMonoFrameworkPrototype.Framework;
 
 namespace VercelMonoFrameworkPrototype.Routes;
 
-public class Index : IVercelFrameworkPage
+public class Index
 {
     public object PreInit()
     {

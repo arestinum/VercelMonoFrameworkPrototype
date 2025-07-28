@@ -1,7 +1,7 @@
 using System.Web;
 using System.Web.Routing;
 
-namespace VercelMonoFrameworkPrototypeLibrary.Routing;
+namespace VercelMonoFrameworkPrototype.Framework.Routing;
 
 public class VercelFrameworkRouteHandler : IRouteHandler
 {

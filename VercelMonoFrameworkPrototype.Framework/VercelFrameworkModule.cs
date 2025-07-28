@@ -1,6 +1,6 @@
 using System.Web;
 
-namespace VercelMonoFrameworkPrototypeLibrary;
+namespace VercelMonoFrameworkPrototype.Framework;
 
 public class VercelFrameworkModule : IHttpModule
 {

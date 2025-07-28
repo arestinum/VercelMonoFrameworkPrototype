@@ -1,4 +1,4 @@
-namespace VercelMonoFrameworkPrototypeLibrary.Services;
+namespace VercelMonoFrameworkPrototype.Framework.Services;
 
 public class PageEntryViewServerSide
 { }

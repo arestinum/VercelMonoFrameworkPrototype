@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace VercelMonoFrameworkPrototypeLibrary;
+namespace VercelMonoFrameworkPrototype.Framework;
 
 public interface IBaseComponent
 {

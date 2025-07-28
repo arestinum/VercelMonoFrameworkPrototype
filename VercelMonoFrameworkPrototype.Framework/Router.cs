@@ -1,11 +1,12 @@
 using System.Reflection;
 using System.Security.AccessControl;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Routing;
 using System.Web.UI.WebControls;
-using VercelMonoFrameworkPrototypeLibrary.Routing;
+using VercelMonoFrameworkPrototype.Framework.Routing;
 
-namespace VercelMonoFrameworkPrototypeLibrary;
+namespace VercelMonoFrameworkPrototype.Framework;
 
 public enum RouteNodeType
 {
@@ -35,7 +36,7 @@ public class VercelFrameworkRouter
     public VercelFrameworkRouter(HttpApplication application)
     {
         Application = application;
-        string routerRoot = Application.Server.MapPath("~/src/routes");
+        var routerRoot = Application.Server.MapPath("~/Application/Routes");
 
         Application.Application["Framework::Router"] = this;
         Application.Application["Framework::Router::Root"] = routerRoot;
@@ -62,6 +63,18 @@ public class VercelFrameworkRouter
         };
 
         Application.Application["Framework::Router::Tree"] = RootNode;
+        
+        RegisterRoutes(RouteTable.Routes);
+    }
+
+    private static void RegisterRoutes(RouteCollection routes)
+    {
+        VercelFrameworkRouteHandler frameworkRouteHandler = new();
+        Route frameworkRootRoute = new(string.Empty, frameworkRouteHandler);
+        Route frameworkGenericRoute = new("{*route}", frameworkRouteHandler);
+        
+        routes.Add(string.Empty, frameworkRootRoute);
+        routes.Add("Generic", frameworkGenericRoute);
     }
 
     public List<RouteNode> Discover(string path)
@@ -70,9 +83,12 @@ public class VercelFrameworkRouter
         if (directories.Count == 0) return [];
 
         List<RouteNode> children = [..directories.Select(directory => {
+            string pattern = @$"^{directory}\/?$";
+            Regex.Replace(pattern, @"\[.{0,}    \]", ".{0,}");
 
             return new RouteNode() {
                 Name = directory.Split('/').Last(),
+                Pattern = $"^{directory}\\/?$",
                 DirectoryPath = directory,
                 Children = Discover(directory),
                 Metadata = new() {

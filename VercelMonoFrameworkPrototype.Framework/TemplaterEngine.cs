@@ -1,13 +1,12 @@
 using System.CodeDom.Compiler;
+using System.Text;
 using System.Web;
+using System.Web.UI;
 using HtmlAgilityPack;
 using Microsoft.CSharp;
-using RazorEngine.Configuration;
-using RazorEngine.Templating;
-using VercelMonoFrameworkPrototypeLibrary.Enums;
-using VercelMonoFrameworkPrototypeLibrary.RazorEngine;
+using VercelMonoFrameworkPrototype.Framework.Enums;
 
-namespace VercelMonoFrameworkPrototypeLibrary;
+namespace VercelMonoFrameworkPrototype.Framework;
 
 public class VercelFrameworkTemplaterEngine
 {
@@ -30,7 +29,7 @@ public class VercelFrameworkTemplaterEngine
 
     public VercelFrameworkTemplaterEngine(string? routePath)
     {
-        string templateExtension = "cshtml";
+        var templateExtension = "cshtml";
         switch (_configuration.Templater)
         {
             case VercelFrameworkTemplater.Fluid:
@@ -41,9 +40,9 @@ public class VercelFrameworkTemplaterEngine
                 break;
         }
 
-        bool isFileExisting = !string.IsNullOrEmpty(routePath) && File.Exists(routePath + $"+page.{templateExtension}");
+        var isFileExisting = !string.IsNullOrEmpty(routePath) && File.Exists(routePath + $"+page.{templateExtension}");
         _lastWritten = File.GetLastWriteTime(routePath + $"+page.{templateExtension}");
-        bool isServerFileExisting = !string.IsNullOrEmpty(routePath) && File.Exists(routePath + "+server.cs");
+        var isServerFileExisting = !string.IsNullOrEmpty(routePath) && File.Exists(routePath + "+server.cs");
 
         if (isFileExisting)
         {
@@ -81,23 +80,43 @@ public class VercelFrameworkTemplaterEngine
         }
     }
 
-    public string Render()
+    public string NativeRenderer()
     {
-        string result = string.Empty;
+        StringBuilder stringBuilder = new();
 
-        if (_configuration.Templater is VercelFrameworkTemplater.RazorEngine)
+        using var stringWriter = new StringWriter(stringBuilder);
+        var fakeRequest = new HttpRequest("+page.aspx", "http://tempuri.org", string.Empty);
+        var fakeResponse = new HttpResponse(stringWriter);
+        var fakeContext = new HttpContext(fakeRequest, fakeResponse);
+
+        var pageInstance = PageParser.GetCompiledPageInstance("~/src/routes/+page.aspx", HttpContext.Current.Server.MapPath("~/src/routes/+page.aspx"), HttpContext.Current);
+        pageInstance.ProcessRequest(fakeContext);
+
+        return stringBuilder.ToString();
+    }
+    
+    // public string RazorLightRenderer()
+    // {
+    //     throw new NotImplementedException();
+    // }
+
+    public string Render(HttpContext context)
+    {
+        var result = string.Empty;
+
+        switch (_configuration.Templater)
         {
-            TemplateServiceConfiguration config = new()
-            {
-                BaseTemplateType = typeof(GlobalTemplateBase<>),
-                CachingProvider = new VercelFrameworkCachingProvider(),
-                Debug = true
-            };
-
-            var service = RazorEngineService.Create(config);
-
-            result = service.RunCompile(_viewSourceTemplate, _lastWritten.ToString(), null, new { FirstName = "Patrikas", LastName = "Lyddon" });
-        }
+            case VercelFrameworkTemplater.Native:
+                result = NativeRenderer();
+                break;
+            case VercelFrameworkTemplater.RazorEngine:
+            case VercelFrameworkTemplater.Handlebars:
+            case VercelFrameworkTemplater.Fluid:
+            case VercelFrameworkTemplater.Custom:
+            default:
+                result = string.Empty;
+                break;
+        };
 
         return result;
     }

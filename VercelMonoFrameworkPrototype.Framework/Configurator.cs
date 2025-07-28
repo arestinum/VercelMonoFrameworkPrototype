@@ -1,12 +1,18 @@
 using System.Configuration;
-using VercelMonoFrameworkPrototypeLibrary.Enums;
+using System.Text.Json;
+using VercelMonoFrameworkPrototype.Framework.Enums;
 
-namespace VercelMonoFrameworkPrototypeLibrary;
+namespace VercelMonoFrameworkPrototype.Framework;
 
 public class VercelFrameworkConfigurator
 {
     private VercelFrameworkTemplater _templater = VercelFrameworkTemplater.RazorEngine;
     private string _definedRootPath = string.Empty;
+
+    public JsonSerializerOptions JsonSerializerOptions { get; set; } = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 
     private string SetRootPath()
     {

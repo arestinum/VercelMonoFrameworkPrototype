@@ -1,17 +1,12 @@
 using System.CodeDom.Compiler;
-using System.Diagnostics;
-using System.Globalization;
 using System.Reflection;
 using System.Web;
 using HtmlAgilityPack;
 using Microsoft.CSharp;
 using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
-using RazorEngine.Configuration;
-using RazorEngine.Templating;
-using VercelMonoFrameworkPrototypeLibrary.RazorEngine;
 
-namespace VercelMonoFrameworkPrototypeLibrary.Services;
+namespace VercelMonoFrameworkPrototype.Framework.Services;
 
 public class ComponentScriptServerSideFile
 {
@@ -128,17 +123,6 @@ public class VercelFrameworkComponentService
 
                 object componentInstance = assembly.CreateInstance(componentClass.Name);
                 var initReturn = componentClass.InvokeMember("Init", BindingFlags.InvokeMethod, null, componentInstance, []);
-
-                TemplateServiceConfiguration config = new()
-                {
-                    BaseTemplateType = typeof(GlobalTemplateBase<>),
-                    CachingProvider = new VercelFrameworkCachingProvider(),
-                    Debug = true
-                };
-
-                var service = RazorEngineService.Create(config);
-
-                service.AddTemplate(Path.GetFileNameWithoutExtension(file.Path).Replace(".component", ""), $"{Path.GetFileNameWithoutExtension(file.Path)}.cshtml");
             }
         }
     }

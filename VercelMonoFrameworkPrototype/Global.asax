@@ -1,1 +1,1 @@
-<%@ Application Language="C#" Inherits="VercelMonoFrameworkPrototypeLibrary.VercelFrameworkGlobalApplication" %>
+<%@ Application Language="C#" Inherits="VercelMonoFrameworkPrototype.Framework.VercelFrameworkGlobalApplication" %>

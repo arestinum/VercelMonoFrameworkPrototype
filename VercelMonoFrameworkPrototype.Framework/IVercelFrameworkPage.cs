@@ -1,4 +1,4 @@
-namespace VercelMonoFrameworkPrototypeLibrary;
+namespace VercelMonoFrameworkPrototype.Framework;
 
 public interface IVercelFrameworkPage
 {

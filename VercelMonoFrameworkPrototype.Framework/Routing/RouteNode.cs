@@ -1,5 +1,8 @@
-namespace VercelMonoFrameworkPrototypeLibrary.Routing;
+namespace VercelMonoFrameworkPrototype.Framework.Routing;
 
+/// <summary>
+/// A data structure describing the nodes in a tree
+/// </summary>
 public class RouteNode
 {
     public string Name { get; set; } = string.Empty;
